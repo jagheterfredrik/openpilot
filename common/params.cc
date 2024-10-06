@@ -214,7 +214,7 @@ std::unordered_map<std::string, uint32_t> keys = {
 
 Params::Params(const std::string &path) {
   params_prefix = "/" + util::getenv("OPENPILOT_PREFIX", "d");
-  params_path = ensure_params_path(params_prefix, "/data/data/ai.flow.flowy/files");
+  params_path = ensure_params_path(params_prefix, "/data/data/ai.flow.flowy/files/app");
 }
 
 Params::~Params() {
