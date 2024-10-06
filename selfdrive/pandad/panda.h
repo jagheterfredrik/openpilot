@@ -49,6 +49,7 @@ private:
   std::unique_ptr<PandaCommsHandle> handle;
 
 public:
+  Panda(int fd);
   Panda(std::string serial="", uint32_t bus_offset=0);
 
   cereal::PandaState::PandaType hw_type = cereal::PandaState::PandaType::UNKNOWN;

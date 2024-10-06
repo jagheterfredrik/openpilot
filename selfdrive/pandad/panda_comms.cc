@@ -22,6 +22,12 @@ static libusb_context *init_usb_ctx() {
   return context;
 }
 
+PandaUsbHandle::PandaUsbHandle(int fd) : PandaCommsHandle("") {
+  libusb_set_option(ctx, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
+  libusb_init(NULL);
+  libusb_wrap_sys_device(NULL, (intptr_t)fd, &dev_handle);
+}
+
 PandaUsbHandle::PandaUsbHandle(std::string serial) : PandaCommsHandle(serial) {
   // init libusb
   ssize_t num_devices;

@@ -15,6 +15,8 @@
 #include "common/version.h"
 #include "system/hardware/hw.h"
 
+#include <android/log.h>
+
 class SwaglogState {
 public:
   SwaglogState() {
@@ -66,7 +68,7 @@ public:
   void log(int levelnum, const char* filename, int lineno, const char* func, const char* msg, const std::string& log_s) {
     std::lock_guard lk(lock);
     if (levelnum >= print_level) {
-      printf("%s: %s\n", filename, msg);
+      __android_log_print(ANDROID_LOG_INFO, filename, "%s\n", msg);
     }
     zmq_send(sock, log_s.data(), log_s.length(), ZMQ_NOBLOCK);
   }

@@ -39,6 +39,7 @@ public:
 class PandaUsbHandle : public PandaCommsHandle {
 public:
   PandaUsbHandle(std::string serial);
+  PandaUsbHandle(int fd);
   ~PandaUsbHandle();
   int control_write(uint8_t request, uint16_t param1, uint16_t param2, unsigned int timeout=TIMEOUT);
   int control_read(uint8_t request, uint16_t param1, uint16_t param2, unsigned char *data, uint16_t length, unsigned int timeout=TIMEOUT);

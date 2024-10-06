@@ -10,6 +10,16 @@
 #include "common/swaglog.h"
 #include "common/util.h"
 
+Panda::Panda(int fd) : bus_offset(0) {
+  handle = std::make_unique<PandaUsbHandle>(fd);
+  LOGW("connected to fd %d over USB", fd);
+
+  hw_type = get_hw_type();
+  can_reset_communications();
+
+  return;
+}
+
 Panda::Panda(std::string serial, uint32_t bus_offset) : bus_offset(bus_offset) {
   // try USB first, then SPI
   try {

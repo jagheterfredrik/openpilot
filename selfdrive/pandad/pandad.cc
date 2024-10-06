@@ -141,6 +141,27 @@ bool safety_setter_thread(std::vector<Panda *> pandas) {
   return true;
 }
 
+Panda *connect(int fd) {
+  std::unique_ptr<Panda> panda;
+  try {
+    panda = std::make_unique<Panda>(fd);
+  } catch (std::exception &e) {
+    return nullptr;
+  }
+
+  // common panda config
+  if (getenv("BOARDD_LOOPBACK")) {
+    panda->set_loopback(true);
+  }
+  //panda->enable_deepsleep();
+
+  // if (!panda->up_to_date() && !getenv("BOARDD_SKIP_FW_CHECK")) {
+  //   throw std::runtime_error("Panda firmware out of date. Run pandad.py to update.");
+  // }
+
+  return panda.release();
+}
+
 Panda *connect(std::string serial="", uint32_t index=0) {
   std::unique_ptr<Panda> panda;
   try {
@@ -545,6 +566,35 @@ void peripheral_control_thread(Panda *panda, bool no_fan_control) {
     }
   }
 }
+
+void pandad_main_thread(int fd) {
+  LOGW("launching pandad");
+
+  // connect to all provided serials
+  std::vector<Panda *> pandas;
+  Panda *p = connect(fd);
+
+  pandas.push_back(p);
+
+  if (!do_exit) {
+    LOGW("connected to all pandas");
+
+    std::vector<std::thread> threads;
+
+    threads.emplace_back(panda_state_thread, pandas, getenv("STARTED") != nullptr);
+    threads.emplace_back(peripheral_control_thread, pandas[0], getenv("NO_FAN_CONTROL") != nullptr);
+
+    threads.emplace_back(can_send_thread, pandas, getenv("FAKESEND") != nullptr);
+    threads.emplace_back(can_recv_thread, pandas);
+
+    for (auto &t : threads) t.join();
+  }
+
+  for (Panda *panda : pandas) {
+    delete panda;
+  }
+}
+
 
 void pandad_main_thread(std::vector<std::string> serials) {
   LOGW("launching pandad");
